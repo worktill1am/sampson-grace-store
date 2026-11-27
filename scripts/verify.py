@@ -35,19 +35,18 @@ def flow(browser, name, viewport, shots):
     page.on("console", lambda m: m.type == "error" and errors.append(m.text))
     page.on("pageerror", lambda e: errors.append(str(e)))
 
-    # Every product shows a real photo or a tagged sample photo; no placeholder drawings remain.
+    # Every product shows a cohesive editorial lifestyle sample photo on cards; no placeholder drawings remain.
     page.goto(BASE + "/products")
-    # 3 AI samples (gifts, church, souvenirs) + the free Pexels tee lead photo. Mug and cap lead with Albert's own photos.
-    expect(page.locator(".card .tag-sample")).to_have_count(4)
+    expect(page.locator(".card .tag-sample")).to_have_count(8)
     expect(page.get_by_text("Placeholder image")).to_have_count(0)
     page.wait_for_load_state("networkidle")
     if "products" in shots: page.screenshot(path=SHOTS / shots["products"], full_page=True)
 
     page.goto(BASE + "/")
     expect(page.locator(".hero-title")).to_have_text("Sampson Grace Prints")
-    expect(page.locator(".category .tag-sample")).to_have_count(2)  # tee tile + Christmas tile
-    expect(page.locator(".category .photo").nth(0)).to_have_attribute("src", "/products/sample-tee-sm.webp")
-    expect(page.locator(".category .photo").nth(1)).to_have_attribute("src", "/products/mug-jesus-is-my-saviour-sm.webp")
+    expect(page.locator(".category .tag-sample")).to_have_count(3)
+    expect(page.locator(".category .photo").nth(0)).to_have_attribute("src", "/products/lifestyle-tee-sm.webp")
+    expect(page.locator(".category .photo").nth(1)).to_have_attribute("src", "/products/lifestyle-mug-sm.webp")
     if "home" in shots: page.screenshot(path=SHOTS / shots["home"], full_page=True)
 
     page.locator(".category").first.click()
@@ -55,8 +54,8 @@ def flow(browser, name, viewport, shots):
     page.get_by_role("link", name="Customized T-Shirt Printing").click()
     expect(page).to_have_url(BASE + "/products/custom-t-shirt")
 
-    # The faith-print sample photo leads; nothing is picked yet, so ordering waits for a choice.
-    expect(page.locator(".product-grid .sample .photo")).to_have_attribute("src", "/products/sample-tee.webp")
+    # The editorial lifestyle photo leads; nothing is picked yet, so ordering waits for a choice.
+    expect(page.locator(".product-grid .sample .photo")).to_have_attribute("src", "/products/lifestyle-tee.webp")
     expect(page.locator(".product-grid .tag-sample")).to_have_text("Sample photo")
     expect(page.get_by_test_id("chosen-design")).to_have_count(0)
     expect(page.get_by_role("button", name="Add to order")).to_be_disabled()
@@ -115,17 +114,11 @@ def flow(browser, name, viewport, shots):
         assert needle in text, (needle, text)
     print(f"[{name}] WhatsApp link OK: wa.me/{PHONE}\n" + text)
 
-    # Language switch persists across pages.
-    page.get_by_role("button", name="ਪੰਜਾਬੀ").click()
-    expect(page.locator("html")).to_have_attribute("lang", "pa")
-    expect(page.locator("h1")).to_have_text("ਤੁਹਾਡੀ ਆਰਡਰ ਬੇਨਤੀ")
+    # English-only storefront: no Punjabi or Hindi language selectors appear.
+    expect(page.locator("html")).to_have_attribute("lang", "en")
+    expect(page.get_by_role("button", name="ਪੰਜਾਬੀ")).to_have_count(0)
+    expect(page.get_by_role("button", name="हिंदी")).to_have_count(0)
     page.goto(BASE + "/")
-    expect(page.locator(".tagline")).to_have_text("ਵਿਸ਼ਵਾਸ ਛਾਪਦੇ ਹਾਂ, ਕਿਰਪਾ ਵੰਡਦੇ ਹਾਂ!")
-    if "punjabi" in shots: page.screenshot(path=SHOTS / shots["punjabi"], full_page=True)
-    page.get_by_role("button", name="हिंदी").click()
-    expect(page.locator(".tagline")).to_have_text("विश्वास छापते हैं, अनुग्रह बाँटते हैं!")
-    if "hindi" in shots: page.screenshot(path=SHOTS / shots["hindi"], full_page=True)
-    page.get_by_role("button", name="English").click()
     expect(page.locator(".tagline")).to_have_text("Printing Faith, Sharing Grace!")
 
     # No branch phone anywhere; the only tel: link is the main office.
