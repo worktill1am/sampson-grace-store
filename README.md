@@ -6,6 +6,15 @@ Customers pick a product, add a photo and text (previewed in the browser, never 
 
 Next.js (App Router) + React + TypeScript. Every page is static.
 
+## Clone and run
+
+```sh
+git clone https://github.com/worktill1am/sampson-grace-store.git
+cd sampson-grace-store
+npm install
+npm run dev     # http://localhost:3000
+```
+
 ## Setup
 
 ```sh
